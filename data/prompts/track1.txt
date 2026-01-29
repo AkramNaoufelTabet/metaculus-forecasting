@@ -1,0 +1,138 @@
+TASK
+Estimate the probability that the following question resolves YES, using ONLY the evidence packet provided below.
+
+Apply disciplined probabilistic reasoning. Prioritize base rates, explicit uncertainty quantification, and proportional weighting of evidence.
+
+EVIDENCE PACKET RULES (MUST FOLLOW)
+- Use ONLY the information contained in the EVIDENCE PACKET below.
+- Do NOT use external knowledge, memory of events, or assumptions about information not documented in the packet.
+- If your prior knowledge CONFLICTS with the evidence packet, treat the EVIDENCE PACKET AS AUTHORITATIVE.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING.
+- You MUST output a probability p ∈ [0,1].
+- Extreme probabilities (<0.02 or >0.98) are allowed ONLY if explicitly justified by decisive evidence in the packet.
+- Be analytic and concise; avoid narrative or rhetorical framing.
+
+UNDERSTANDING THE EVIDENCE STRUCTURE
+The evidence packet uses a Red Team / Blue Team structure:
+
+BLUE (Prevailing): Evidence reflecting the dominant or most widely accepted interpretation at the time.
+RED (Contrary): Evidence challenging the prevailing interpretation or supporting alternative outcomes.
+NEUTRAL: Contextual or background information without clear directional implication.
+
+DOMINANCE RATING
+The packet includes a curator-provided dominance rating (Strong Blue / Lean Blue / Balanced / Lean Red / Strong Red).
+- This reflects the curator’s assessment of evidence quantity and quality, NOT a forecast.
+- Use it as a guardrail against overweighting vivid contrarian points.
+- Your final probability MAY differ substantially from the curator dominance rating if your reasoning supports it.
+
+EVIDENCE WEIGHTING PRINCIPLES
+Do NOT inflate the weight of RED evidence simply because it is labeled contrary.
+Weight evidence based on:
+1) Source credibility (per CREDIBILITY TIER)
+2) Recency relative to the resolution date
+3) Direct relevance to the resolution criteria
+4) Quantity of independent sources
+5) Independence: avoid double-counting items from the same CLUSTER
+
+EVIDENCE DISCIPLINE
+- For every YES/NO driver and every adjustment:
+  (i) Cite the evidence item ID (e.g., [B3], [R2]), AND
+  (ii) Note its color (BLUE / RED / NEUTRAL) and credibility tier.
+- If making an inference beyond explicit statements, label it clearly as “inference” and justify it.
+- If evidence is insufficient to justify a large adjustment, keep the adjustment small.
+- Do NOT treat multiple items from the same CLUSTER as independent support for the same adjustment.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+
+1) Rephrase
+   Restate the question in your own words, defining precisely what “YES” means and the close date.
+
+2) Key criteria & dates
+   List the exact conditions required for YES.
+   Quote any relevant triggers or exclusions from the resolution criteria.
+
+3) Evidence inventory
+   - Count: X BLUE items, Y RED items, Z NEUTRAL items.
+   - Curator dominance rating: state it.
+   - Your independent assessment of evidence balance (may agree or disagree).
+   - Key unknowns: list items from [KEY UNKNOWNS] that most affect uncertainty.
+
+4) Outside view
+   Using evidence tagged as base-rate relevant, propose a reference class and base rate.
+   State confidence in the base rate: HIGH / MEDIUM / LOW.
+   If no explicit base-rate evidence is provided, state “no explicit base-rate evidence” and:
+   - Use an implicit outside view derived from analogous evidence in the packet if defensible, OR
+   - Use 0.5 only if no reasonable reference class can be constructed.
+
+5) Inside view
+   - At least 3 strongest NO drivers (with evidence IDs, color tags, and cluster IDs).
+   - At least 3 strongest YES drivers (with evidence IDs, color tags, and cluster IDs).
+   - Time remaining: what could plausibly change before close (based ONLY on packet evidence).
+   - Identify the dominant causal forces supported by the evidence.
+
+6) Adjustments
+   Starting from the base rate, make 2–4 explicit adjustments.
+   - State direction and magnitude (percentage points or odds multiplier).
+   - Each adjustment must cite evidence IDs.
+   - Weight adjustments proportionally to evidence quality and independence.
+   - Do NOT double-count clustered items.
+
+7) Uncertainty & calibration check
+   - Am I overweighting vivid or recent RED evidence?
+   - Am I anchoring on the curator dominance rating instead of independent reasoning?
+   - Am I double-counting evidence from the same cluster?
+   - Have I accounted for KEY UNKNOWNS in my uncertainty?
+   - If evidence is thin or conflicting, shrink toward the base rate (or 0.5 if no base rate).
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+Rephrase:
+Key criteria & dates:
+Evidence inventory (Blue/Red/Neutral counts, dominance assessment, key unknowns):
+Outside view (reference class, base rate, confidence):
+YES drivers:
+NO drivers:
+Adjustments from base rate:
+Uncertainty & calibration check:
+Range (L–U): subjective uncertainty interval intended to contain the true probability with approximately 80% confidence
+Final probability: p (decimal, two decimal places)
+
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+
+QUESTION
+{{QUESTION TEXT}}
+
+BACKGROUND
+{{BACKGROUND TEXT}}
+
+RESOLUTION CRITERIA (INCLUDING ALL FINE PRINT)
+{{RESOLUTION_CRITERIA + FINE_PRINT}}
+
+EVIDENCE PACKET
+
+[DOMINANCE ANNOTATION]
+Rating: {{STRONG_BLUE | LEAN_BLUE | BALANCED | LEAN_RED | STRONG_RED}}
+Justification: {{1–2 sentence curator rationale}}
+Caution: This is a guardrail, not a forecast.
+
+[CREDIBILITY TIERS]
+TIER-1: Official sources, peer-reviewed research, major verified news outlets
+TIER-2: Credible secondary sources, expert commentary, reputable analysis
+TIER-3: Social media, unverified reports, opinion pieces, anonymous sources
+
+[NEUTRAL FACTS / CONTEXT]
+| ID | Credibility | Cluster | Date | Source | Summary |
+
+[BLUE TEAM: Prevailing Evidence]
+| ID | Credibility | Cluster | Date | Source | Summary |
+
+[RED TEAM: Contrary Evidence]
+| ID | Credibility | Cluster | Date | Source | Summary |
+
+[BASE RATE EVIDENCE] (if available)
+| ID | Credibility | Date | Source | Summary |
+(If none: “No explicit base-rate evidence provided.”)
+
+[KEY UNKNOWNS / MISSING INFORMATION]
+| ID | Description | Impact if YES | Impact if NO |

@@ -1,0 +1,88 @@
+TASK
+Estimate the probability that the following question resolves YES using real-time search and retrieval. Use your native search/retrieval capabilities to gather relevant evidence BEFORE forecasting, then apply rigorous probabilistic reasoning.
+
+
+SEARCH & REASONING GUIDELINES (MUST FOLLOW)
+- YOU MUST perform web/news search before producing a forecast.
+- Use only: (a) the question + resolution criteria, and (b) information you retrieve via search during this run.
+- If your prior knowledge conflicts with retrieved evidence, treat retrieved evidence as authoritative unless contradicted by higher-credibility sources.
+- Treat resolution criteria (including fine print) as BINDING. If a source conflicts with criteria, criteria win.
+- Prefer: (1) base rate / historical frequency data, (2) the most recent decisive developments, (3) authoritative primary sources.
+- Corroborate critical facts across ≥2 independent sources when feasible.
+- You MUST output a probability p ∈ [0,1].
+- Extreme probabilities (<0.02 or >0.98) are allowed ONLY if justified by decisive, credible evidence.
+
+EVIDENCE DISCIPLINE
+- Provide citations for:
+  (i) any nontrivial factual claim,
+  (ii) every claim used as a reason for a YES/NO driver,
+  (iii) every adjustment step.
+- Citation format: [Source: Outlet or Domain, Date] (URLs optional).
+- Rate each source’s credibility:
+  TIER-1 = official/primary sources (gov, regulators, court docs, company filings), major verified outlets
+  TIER-2 = reputable analysis, credible experts, established secondary outlets
+  TIER-3 = social media, unverified reports, opinion pieces
+- If sources conflict, explicitly note the conflict and weight by credibility, independence, and directness.
+
+TIME SENSITIVITY & BIAS CHECKS
+- Recency bias: recent news is not automatically more important; weight by relevance to resolution criteria.
+- Availability bias: actively search for contrary/discounting evidence.
+- Time remaining: explicitly analyze what could still change before close and how likely it is.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+1) Rephrase: Define precisely what YES means and state the close/resolve-by date.
+
+2) Search summary:
+   - List search queries used (3–8 max).
+   - List 3–6 most relevant sources found (with tier + date).
+   - State whether any critical information was unavailable despite searching.
+
+3) Key criteria & dates:
+   - Quote the exact resolution triggers/exclusions from the criteria.
+   - List any edge cases (fine print) that materially affect YES/NO.
+
+4) Outside view (base rate):
+   - Use search to identify a relevant reference class and a rough base rate.
+   - State confidence in base rate: HIGH / MEDIUM / LOW.
+   - If no defensible reference class can be constructed, state “no defensible base rate found” and choose a rough base rate anyway, clearly labeled LOW confidence (do NOT default to 0.5).
+
+5) Inside view:
+   - NO drivers (≥3) with citations.
+   - YES drivers (≥3) with citations.
+   - Time remaining & dynamics: what could plausibly change before close? assign likelihood(s).
+   - Dominant forces: name the 2–3 most decision-relevant pieces of evidence.
+
+6) Adjustments:
+   - Start from base rate.
+   - Make 2–4 explicit numeric adjustments (percentage points or odds multipliers).
+   - Each adjustment must cite the evidence that justifies it.
+   - Show the final arithmetic from base rate → p.
+
+7) Uncertainty & calibration check:
+   - Am I overweighting recent/vivid news?
+   - Are sources independent or clustered?
+   - Should I shrink toward base rate due to weak/conflicting evidence?
+   - Are extreme probabilities justified by decisive evidence?
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+Rephrase:
+Search summary:
+Key criteria & dates:
+Outside view (reference class, base rate, confidence):
+YES drivers:
+NO drivers:
+Time remaining & dynamics:
+Adjustments from base rate (show arithmetic):
+Uncertainty & calibration check:
+Range (L–U): subjective uncertainty interval intended to contain the true probability with approximately 80% confidence
+Final probability: p (decimal, two decimal places)
+
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+
+QUESTION
+{{QUESTION_TEXT}}
+
+RESOLUTION CRITERIA (INCLUDING ALL FINE PRINT)
+{{RESOLUTION_CRITERIA}}

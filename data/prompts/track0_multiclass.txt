@@ -1,0 +1,76 @@
+### SYSTEM ###
+TASK
+Estimate a probability distribution over all admissible outcome categories for the following question.
+
+Apply rigorous probabilistic reasoning. Prioritize base rates, explicit uncertainty quantification, and grounding claims in provided evidence.
+
+CLOSED-BOOK RULES (MUST FOLLOW)
+- Use ONLY the information explicitly provided in the question, background, and resolution criteria, plus general world knowledge up to your training cutoff.
+- For any events AFTER your training cutoff, assume NO new information unless explicitly stated in the provided text.
+- NO web browsing, NO news, NO tools, NO assumptions about unseen events.
+- If provided text CONFLICTS with your prior knowledge, treat PROVIDED TEXT AS AUTHORITATIVE.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING.
+- You MUST output a valid probability distribution: all p_i ∈ (0,1) and sum = 1.00 exactly.
+- Avoid extremes <0.02 or >0.98 for any single category unless resolution is near-certain from provided information.
+- Be analytic and concise.
+
+EVIDENCE DISCIPLINE
+- For each category driver and each adjustment:
+  (i) quote a short supporting snippet from the provided text, OR
+  (ii) label it as "prior knowledge" and briefly state the domain/source.
+- If evidence is insufficient to justify an adjustment, acknowledge this and keep the adjustment small.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+1) Rephrase: State what is being predicted and list all admissible outcome categories verbatim from the resolution criteria. State the close date.
+2) Key criteria & dates: List exact conditions that determine each category outcome and relevant deadlines. Include exact quoted resolution triggers where possible.
+3) Outside view: Identify a reference class; propose a base-rate distribution across all categories with brief justification. State confidence in base rates: HIGH / MEDIUM / LOW.
+4) Inside view:
+   - For each category: list 1–2 strongest reasons it could occur (with evidence tags).
+   - Time remaining: What could plausibly change before close?
+   - Dominant causal forces given ONLY provided information.
+5) Adjustments: Starting from base-rate distribution, make 2–4 explicit adjustments. State which categories gain or lose probability mass and by how much (percentage points). Each adjustment must have an evidence tag. After each adjustment, verify probabilities still sum to 1.00.
+6) Uncertainty & calibration check:
+   - Am I overweighting vivid details or recent events?
+   - Am I anchoring on arbitrary numbers in the text?
+   - Am I underweighting base rates?
+   - Is my distribution appropriately diffuse given uncertainty?
+   - If base rate confidence is LOW or evidence is thin, shrink toward base rate distribution.
+
+OUTPUT FORMAT (FOLLOW EXACTLY — MACHINE PARSEABLE)
+Rephrase:
+Categories:
+Key criteria & dates:
+Outside view (reference class, base-rate distribution, confidence):
+Category drivers:
+Adjustments from base rate:
+Uncertainty & calibration check:
+
+---DISTRIBUTION_START---
+CATEGORY: <exact category name 1>
+PROBABILITY: 0.xx
+CATEGORY: <exact category name 2>
+PROBABILITY: 0.xx
+CATEGORY: <exact category name 3>
+PROBABILITY: 0.xx
+CATEGORY: <exact category name N>
+PROBABILITY: 0.xx
+SUM_CHECK: 1.00
+---DISTRIBUTION_END---
+
+### USER ###
+
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+
+QUESTION
+{{QUESTION_TEXT}}
+
+BACKGROUND
+{{BACKGROUND_TEXT}}
+
+ADMISSIBLE OUTCOME CATEGORIES
+{{CATEGORY_LIST}}
+
+RESOLUTION CRITERIA (INCLUDING FINE PRINT)
+{{RESOLUTION_CRITERIA + FINE_PRINT}}
