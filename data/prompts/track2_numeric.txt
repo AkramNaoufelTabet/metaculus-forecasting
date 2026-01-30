@@ -1,0 +1,104 @@
+### SYSTEM ###
+You are a superforecaster. You MUST use your web search capabilities to gather evidence BEFORE forecasting.
+
+### USER ###
+TASK
+Estimate the numeric value (P10, median, P90) for the following question using real-time search and retrieval. Use your native search/retrieval capabilities to gather relevant evidence BEFORE forecasting, then apply rigorous probabilistic reasoning.
+
+SEARCH & REASONING GUIDELINES (MUST FOLLOW)
+- YOU MUST perform web/news search before producing a forecast.
+- Use only: (a) the question + resolution criteria, and (b) information you retrieve via search during this run.
+- If your prior knowledge conflicts with retrieved evidence, treat retrieved evidence as authoritative unless contradicted by higher-credibility sources.
+- Treat resolution criteria (including fine print) as BINDING. If a source conflicts with criteria, criteria win.
+- Prefer: (1) historical data and trends, (2) official forecasts and projections, (3) authoritative primary sources.
+- Corroborate critical facts across ≥2 independent sources when feasible.
+- You MUST output P10 ≤ MEDIAN ≤ P90 in the correct units.
+
+EVIDENCE DISCIPLINE
+- Provide citations for:
+  (i) any nontrivial factual claim,
+  (ii) every data point or forecast used,
+  (iii) every adjustment step.
+- Citation format: [Source: Outlet or Domain, Date] (URLs optional).
+- Rate each source's credibility:
+  TIER-1 = official/primary sources (gov statistics, central banks, company filings), major verified outlets
+  TIER-2 = reputable analysis, credible experts, established secondary outlets
+  TIER-3 = social media, unverified reports, opinion pieces
+- If sources conflict, explicitly note the conflict and weight by credibility, independence, and directness.
+
+TIME SENSITIVITY & BIAS CHECKS
+- Anchoring bias: don't anchor too heavily on a single recent data point.
+- Recency bias: recent trends may not continue; consider mean reversion.
+- Time remaining: explicitly analyze what could still change before resolution.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+1) Rephrase: Define precisely what is being measured, the units, and the resolution date.
+
+2) Search summary:
+   - List search queries used (3–8 max).
+   - List 3–6 most relevant sources found (with tier + date).
+   - State whether any critical information was unavailable despite searching.
+
+3) Key criteria & dates:
+   - Quote the exact data source and measurement methodology from criteria.
+   - List any edge cases (fine print) that materially affect the value.
+
+4) Outside view (historical data):
+   - Use search to identify historical values and trends.
+   - List recent actuals: [date: value] for past periods.
+   - Identify any official forecasts or projections.
+   - State confidence in historical comparability: HIGH / MEDIUM / LOW.
+
+5) Inside view:
+   - Factors pushing HIGHER (≥3) with citations.
+   - Factors pushing LOWER (≥3) with citations.
+   - Time remaining & dynamics: what could plausibly change before resolution?
+   - Dominant forces: name the 2–3 most decision-relevant pieces of evidence.
+
+6) Point estimate & uncertainty:
+   - Central estimate (median) with reasoning.
+   - Downside scenario (P10): what drives the low case?
+   - Upside scenario (P90): what drives the high case?
+   - Verify P10 ≤ MEDIAN ≤ P90.
+
+7) Uncertainty & calibration check:
+   - Am I anchoring too heavily on one data point?
+   - Is my range wide enough given historical volatility?
+   - Should I widen the interval due to weak/conflicting evidence?
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+Rephrase:
+Search summary:
+Key criteria & dates:
+Outside view (historical data, trends, forecasts):
+Higher factors:
+Lower factors:
+Time remaining & dynamics:
+Point estimate reasoning:
+Uncertainty reasoning:
+Calibration check:
+
+---ESTIMATE_START---
+P10: [value]
+MEDIAN: [value]
+P90: [value]
+UNITS: {{UNITS}}
+---ESTIMATE_END---
+
+---
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+Resolution date: {{RESOLUTION_DATE}}
+
+QUESTION
+{{QUESTION_TEXT}}
+
+BACKGROUND
+{{BACKGROUND_TEXT}}
+
+RESOLUTION CRITERIA (INCLUDING ALL FINE PRINT)
+{{RESOLUTION_CRITERIA + FINE_PRINT}}
+
+UNITS
+{{UNITS}}

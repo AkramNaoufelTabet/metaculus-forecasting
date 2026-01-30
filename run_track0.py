@@ -7,19 +7,21 @@ Academic-grade implementation for Metaculus forecasting experiments.
 
 Features:
 - Multi-model parallel execution with provider-aware rate limiting
-- Automatic question type detection (binary, multiclass, numeric)
+- Uses pre-computed question types and categories from CSV
 - Machine-parseable output formats
 - Full audit trail (prompts, responses, costs, timings)
 - Robust retry logic with exponential backoff
 - Resume capability for interrupted runs
 - Thread-safe logging and file writes
 
-Author: [Your Name]
-Date: 2026-01
-Version: 1.0.0
+Author: Akram Naoufel Tabet
+Date: 2026-01-28
+Version: 1.1.0
 
 Usage:
-    python track0.py [--config config.json] [--max-questions N] [--max-workers N]
+    python track0.py [--max-questions N] [--max-workers N]
+
+
 """
 
 import csv
@@ -232,7 +234,7 @@ def load_text(path: str) -> str:
 def load_csv_rows(path: str, max_rows: Optional[int] = None) -> List[Dict[str, str]]:
     """Load CSV as list of dicts, optionally limited."""
     rows: List[Dict[str, str]] = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for i, row in enumerate(reader):
             rows.append({k: (v or "") for k, v in row.items()})
@@ -255,91 +257,76 @@ def job_key(model_id: str, question_id: str) -> str:
 
 
 # =============================================================================
-# QUESTION TYPE DETECTION
+# QUESTION TYPE AND CATEGORIES
 # =============================================================================
 
-def detect_question_type(row: Dict[str, str]) -> str:
+def get_question_type(row: Dict[str, str]) -> str:
     """
-    Automatically detect question type from question text and resolution criteria.
+    Get question type from pre-computed column.
+    Falls back to simple title-based detection if column is missing.
     
-    Returns: 'binary', 'multiclass', or 'numeric'
-    
-    Detection heuristics:
-    1. Multiline titles with options → multiclass
-    2. "Which X will..." with categorical resolution → multiclass
-    3. "Will X..." → binary
-    4. "What will be the..." → numeric
-    5. Default → binary
+    Expected column: 'question_type' with values: binary, multiclass, numeric
     """
-    title = (row.get("question_title") or "").strip()
-    title_lower = title.lower()
-    resolution = (row.get("resolution_criteria") or "").strip().lower()
-    fine_print = (row.get("fine_print") or "").strip().lower()
-    full_text = f"{title_lower} {resolution} {fine_print}"
+    # Primary: read from column
+    qtype = (row.get("question_type") or "").strip().lower()
     
-    # Pattern 1: Multiline title with embedded options
-    if "\n" in title:
-        lines = [l.strip() for l in title.split("\n") if l.strip()]
-        if len(lines) >= 3:
-            first_line = lines[0].lower()
-            if any(first_line.startswith(p) for p in ["which", "what will", "what is"]):
-                potential_options = lines[1:]
-                if all(len(opt) < 100 for opt in potential_options):
-                    return "multiclass"
+    if qtype in ("binary", "multiclass", "numeric"):
+        return qtype
     
-    # Pattern 2: "Which X will..." with categorical resolution
-    if re.match(r"^which\b", title_lower):
-        multiclass_signals = [
-            "resolve as the", "resolve to the", "resolves as the",
-            "resolves to the", "will resolve as other", "resolve as other",
-        ]
-        binary_overrides = ["resolve as yes", "resolves as yes", "yes if", "no if"]
-        
-        if any(s in full_text for s in multiclass_signals):
-            if not any(b in full_text for b in binary_overrides):
-                return "multiclass"
+    # Fallback: simple title-based detection
+    title = (row.get("question_title") or "").strip().lower()
     
-    # Pattern 3: Binary "Will X..." questions
-    if re.match(r"^will\b", title_lower):
+    if title.startswith("will "):
         return "binary"
-    
-    # Pattern 4: Explicit Yes/No resolution
-    if any(p in full_text for p in ["resolve as yes if", "resolves as yes if", 
-                                      "resolve as yes", "resolves as yes"]):
-        return "binary"
-    
-    # Pattern 5: Numeric "What will be..." questions
-    numeric_patterns = [
-        r"^what will be the\b",
-        r"^what will .+ be\b",
-        r"^how much\b",
-        r"^how many\b",
-        r"^what percentage\b",
-        r"^what is the .+ (rate|price|value|index|ratio)",
-    ]
-    
-    if any(re.match(p, title_lower) for p in numeric_patterns):
-        # Check for embedded options (transforms to multiclass)
-        if "\n" in title:
-            return "multiclass"
+    elif title.startswith("which "):
+        return "multiclass"
+    elif title.startswith("what will") or title.startswith("how much") or title.startswith("how many"):
         return "numeric"
     
-    # Default fallback
+    # Default
     return "binary"
 
 
-def extract_categories_from_title(row: Dict[str, str]) -> str:
-    """Extract category options from multiline question title."""
-    raw_title = (row.get("question_title") or "").strip()
+def get_categories(row: Dict[str, str]) -> List[str]:
+    """
+    Get categories from pre-computed column.
     
-    if "\n" in raw_title:
-        lines = [l.strip() for l in raw_title.split("\n") if l.strip()]
-        if len(lines) >= 2:
-            # First line is question, rest are options
-            options = lines[1:]
-            return "; ".join(options)
+    Expected column: 'categories' with pipe-separated values
+    Example: "Norway|Germany|United States|Italy|Canada|Other"
     
-    return ""
+    Returns: List of category strings
+    """
+    raw = (row.get("categories") or "").strip()
+    
+    if not raw:
+        return []
+    
+    # Parse pipe-separated
+    if "|" in raw:
+        return [c.strip() for c in raw.split("|") if c.strip()]
+    
+    # Fallback: comma-separated (if no pipes)
+    if "," in raw:
+        return [c.strip() for c in raw.split(",") if c.strip()]
+    
+    # Single category
+    return [raw]
+
+
+def format_categories_for_prompt(categories: List[str]) -> str:
+    """
+    Format categories as numbered list for prompt.
+    
+    Input: ["Norway", "Germany", "United States"]
+    Output:
+        1. Norway
+        2. Germany
+        3. United States
+    """
+    if not categories:
+        return "(No categories specified)"
+    
+    return "\n".join(f"{i+1}. {cat}" for i, cat in enumerate(categories))
 
 
 def detect_canonical_units(row: Dict[str, str]) -> str:
@@ -467,7 +454,11 @@ def build_prompt_mapping(
     question_type: str,
     canonical_units: str
 ) -> Dict[str, str]:
-    """Build placeholder mapping for prompt rendering."""
+    """
+    Build placeholder mapping for prompt rendering.
+    
+    Uses pre-computed categories from CSV for multiclass questions.
+    """
     raw_title = (row.get("question_title") or "").strip()
     
     # Extract clean question text (first line if multiline)
@@ -489,11 +480,12 @@ def build_prompt_mapping(
         "RESOLUTION_CRITERIA + FINE_PRINT": rc_plus_fp,
     }
     
-    # Type-specific mappings
+    # Multiclass: format categories as numbered list
     if question_type == "multiclass":
-        cats = row.get("categories") or extract_categories_from_title(row)
-        mapping["CATEGORY_LIST"] = cats
+        categories = get_categories(row)
+        mapping["CATEGORY_LIST"] = format_categories_for_prompt(categories)
     
+    # Numeric: add units and bounds
     if question_type == "numeric":
         mapping["CANONICAL_UNITS"] = canonical_units
         mapping["UNITS"] = row.get("units") or extract_numeric_units_hint(row) or canonical_units
@@ -605,8 +597,14 @@ def parse_binary(text: str) -> ParseResult:
     return ParseResult(None, "none", ["parse_failed"], {})
 
 
-def parse_multiclass(text: str) -> ParseResult:
-    """Parse multiclass distribution from model output."""
+def parse_multiclass(text: str, expected_categories: List[str]) -> ParseResult:
+    """
+    Parse multiclass distribution from model output.
+    
+    Args:
+        text: Model response text
+        expected_categories: List of expected category names from CSV
+    """
     if not text or not text.strip():
         return ParseResult(None, "none", ["empty_content"], {})
     
@@ -630,6 +628,19 @@ def parse_multiclass(text: str) -> ParseResult:
     for cat, prob in pairs:
         cat_clean = cat.strip()
         dist[cat_clean] = float(prob)
+    
+    # Check if model returned expected categories
+    if expected_categories:
+        expected_set = set(c.lower().strip() for c in expected_categories)
+        returned_set = set(c.lower().strip() for c in dist.keys())
+        
+        missing = expected_set - returned_set
+        extra = returned_set - expected_set
+        
+        if missing:
+            warnings.append(f"missing_categories:{list(missing)[:5]}")
+        if extra:
+            warnings.append(f"extra_categories:{list(extra)[:5]}")
     
     # Validate sum
     total = sum(dist.values())
@@ -761,13 +772,14 @@ def parse_numeric(text: str, canonical_units: str) -> ParseResult:
 def parse_response(
     text: str,
     question_type: str,
-    canonical_units: str = ""
+    canonical_units: str = "",
+    expected_categories: Optional[List[str]] = None
 ) -> ParseResult:
     """Route to appropriate parser based on question type."""
     if question_type == "binary":
         return parse_binary(text)
     elif question_type == "multiclass":
-        return parse_multiclass(text)
+        return parse_multiclass(text, expected_categories or [])
     elif question_type == "numeric":
         return parse_numeric(text, canonical_units)
     else:
@@ -890,17 +902,19 @@ def execute_forecast_job(
         log_debug(f"[{model_id}] Q:{question_id} already completed, skipping")
         return None
     
-    # Detect question type
-    question_type = (row.get("question_type") or "").strip().lower()
-    if question_type not in ("binary", "multiclass", "numeric"):
-        question_type = detect_question_type(row)
+    # Get question type from pre-computed column
+    question_type = get_question_type(row)
+    
+    # Get categories for multiclass
+    categories = get_categories(row) if question_type == "multiclass" else []
     
     # Detect canonical units for numeric
     canonical_units = ""
     if question_type == "numeric":
         canonical_units = detect_canonical_units(row)
     
-    log(f"[{model_id}] Q:{question_id} type={question_type}")
+    log(f"[{model_id}] Q:{question_id} type={question_type}" + 
+        (f" cats={len(categories)}" if categories else ""))
     
     # Load prompt template
     try:
@@ -955,7 +969,12 @@ def execute_forecast_job(
     
     # Parse response
     if content is not None:
-        parse_result = parse_response(content, question_type, canonical_units)
+        parse_result = parse_response(
+            content, 
+            question_type, 
+            canonical_units,
+            expected_categories=categories
+        )
     else:
         parse_result = ParseResult(None, "none", ["api_error"], {})
     
@@ -993,6 +1012,7 @@ def execute_forecast_job(
             "prompt_file": str(prompt_file.relative_to(out_dir)),
             "template_file": template_path,
             "canonical_units": canonical_units if question_type == "numeric" else None,
+            "categories": categories if question_type == "multiclass" else None,
             "mapping_preview": {
                 k: v[:100] + "..." if len(v) > 100 else v
                 for k, v in mapping.items()
@@ -1119,7 +1139,7 @@ def create_manifest(
             k: asdict(v) for k, v in PROVIDER_LIMITS.items()
         },
         "prompt_files": PROMPT_FILES,
-        "version": "1.0.0",
+        "version": "1.1.0",
     }
     
     manifest_path = out_dir / "manifest.json"
@@ -1167,6 +1187,60 @@ def finalize_run(out_dir: Path, start_time: float, jobs_total: int, jobs_ok: int
     log(f"  Total cost: ${total_cost:.4f}")
     log(f"  Tokens: {total_in:,} in / {total_out:,} out")
     log("=" * 60)
+
+
+def validate_csv_columns(questions: List[Dict[str, str]]) -> List[str]:
+    """
+    Validate that required columns exist in CSV.
+    Returns list of warnings/errors.
+    """
+    warnings = []
+    
+    if not questions:
+        return ["No questions loaded"]
+    
+    first_row = questions[0]
+    required_cols = ["question_id", "question_title"]
+    recommended_cols = ["question_type", "categories", "resolution_criteria", "background"]
+    
+    for col in required_cols:
+        if col not in first_row:
+            warnings.append(f"MISSING REQUIRED COLUMN: {col}")
+    
+    for col in recommended_cols:
+        if col not in first_row:
+            warnings.append(f"Missing recommended column: {col}")
+    
+    # Check question_type values
+    type_counts = {"binary": 0, "multiclass": 0, "numeric": 0, "unknown": 0}
+    missing_type = 0
+    
+    for row in questions:
+        qtype = (row.get("question_type") or "").strip().lower()
+        if qtype in type_counts:
+            type_counts[qtype] += 1
+        elif qtype:
+            type_counts["unknown"] += 1
+        else:
+            missing_type += 1
+    
+    if missing_type > 0:
+        warnings.append(f"{missing_type} questions missing 'question_type' - will use fallback detection")
+    
+    if type_counts["unknown"] > 0:
+        warnings.append(f"{type_counts['unknown']} questions have unrecognized question_type values")
+    
+    # Check multiclass have categories
+    multiclass_without_cats = 0
+    for row in questions:
+        if (row.get("question_type") or "").lower() == "multiclass":
+            if not (row.get("categories") or "").strip():
+                multiclass_without_cats += 1
+    
+    if multiclass_without_cats > 0:
+        warnings.append(f"{multiclass_without_cats} multiclass questions missing 'categories' column")
+    
+    return warnings
 
 
 def main():
@@ -1220,12 +1294,25 @@ def main():
         log_error("models.json must be a non-empty list")
         sys.exit(1)
     
-    # Analyze question types
+    # Validate CSV columns
+    csv_warnings = validate_csv_columns(questions)
+    if csv_warnings:
+        log("=" * 60)
+        log("CSV VALIDATION WARNINGS:")
+        for w in csv_warnings:
+            log(f"  ⚠️  {w}")
+        log("=" * 60)
+        
+        # Check for critical errors
+        critical = [w for w in csv_warnings if "MISSING REQUIRED" in w]
+        if critical:
+            log_error("Cannot proceed with missing required columns. Run preprocess_questions.py first.")
+            sys.exit(1)
+    
+    # Count question types (from pre-computed column)
     type_counts: Dict[str, int] = {"binary": 0, "multiclass": 0, "numeric": 0}
     for row in questions:
-        qtype = (row.get("question_type") or "").strip().lower()
-        if qtype not in type_counts:
-            qtype = detect_question_type(row)
+        qtype = get_question_type(row)
         type_counts[qtype] = type_counts.get(qtype, 0) + 1
     
     # Log configuration
@@ -1233,7 +1320,10 @@ def main():
     log(f"TRACK-0 CLOSED-BOOK FORECASTING")
     log(f"  run_id: {run_id}")
     log(f"  output: {out_dir}")
-    log(f"  questions: {len(questions)} ({type_counts})")
+    log(f"  questions: {len(questions)}")
+    log(f"    - binary:     {type_counts['binary']}")
+    log(f"    - multiclass: {type_counts['multiclass']}")
+    log(f"    - numeric:    {type_counts['numeric']}")
     log(f"  models: {len(models)}")
     for i, m in enumerate(models, 1):
         log(f"    {i}. {m.get('label')} [{m.get('openrouter_id')}]")
