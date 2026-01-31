@@ -30,7 +30,6 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Set
-
 from dotenv import load_dotenv
 from openrouter_client import OpenRouterClient
 
@@ -70,7 +69,7 @@ class ProviderLimits:
 PROVIDER_LIMITS: Dict[str, ProviderLimits] = {
     "anthropic": ProviderLimits(max_concurrent=3),
     "openai": ProviderLimits(max_concurrent=4),
-    "x-ai": ProviderLimits(max_concurrent=3),
+    "x-ai": ProviderLimits(max_concurrent=2),
     "default": ProviderLimits(max_concurrent=2),
 }
 
@@ -704,11 +703,12 @@ def call_api_with_retry(
     messages: List[Dict[str, str]],
     reasoning_cfg: Optional[Dict[str, Any]],
     model_params: Dict[str, Any],
-) -> Tuple[Optional[str], Optional[str], Optional[List], Optional[Dict], Optional[str], int, float]:
+) -> Tuple[Optional[str], Optional[str], Optional[List], Optional[Dict], Optional[str], int, float, Dict[str, Any]]:
     """
     Call API with exponential backoff retry and web search enabled.
+    Includes effort fallback: high → medium on reasoning token starvation.
     
-    Returns: (content, reasoning, annotations, usage, error, attempts, elapsed_seconds)
+    Returns: (content, reasoning, annotations, usage, error, attempts, elapsed_seconds, effort_meta)
     """
     limits = get_provider_limits(model_id)
     
@@ -718,65 +718,119 @@ def call_api_with_retry(
     usage = None
     error = None
     
-    start_time = time.time()
+    # Track effort fallback
+    original_effort = None
+    current_effort = None
+    fallback_triggered = False
     
-    for attempt in range(1, limits.retry_max_attempts + 1):
-        try:
-            log_debug(f"API call attempt {attempt}/{limits.retry_max_attempts} (web_search={WEB_SEARCH_ENABLED})")
+    if reasoning_cfg and isinstance(reasoning_cfg, dict):
+        original_effort = reasoning_cfg.get("effort")
+        current_effort = original_effort
+    
+    # Build effort sequence: try original first, then fallback
+    effort_sequence = []
+    if current_effort == "high":
+        effort_sequence = ["high", "medium"]
+    elif current_effort:
+        effort_sequence = [current_effort]
+    else:
+        effort_sequence = [None]  # No effort config
+    
+    start_time = time.time()
+    total_attempts = 0
+    
+    for effort in effort_sequence:
+        # Update reasoning config for this attempt
+        active_reasoning_cfg = None
+        if reasoning_cfg:
+            active_reasoning_cfg = dict(reasoning_cfg)
+            if effort:
+                active_reasoning_cfg["effort"] = effort
+        
+        for attempt in range(1, limits.retry_max_attempts + 1):
+            total_attempts += 1
             
-            resp = client.chat(
-                model=model_id,
-                messages=messages,
-                reasoning=reasoning_cfg,
-                web_search=WEB_SEARCH_ENABLED,
-                web_search_context_size=WEB_SEARCH_CONTEXT_SIZE,
-                **model_params
-            )
-            
-            content = resp.get("content") or ""
-            reasoning = resp.get("reasoning")
-            annotations = resp.get("annotations", [])
-            usage = resp.get("usage")
-            
-            # Check for empty content with reasoning tokens
-            content_len = len(content)
-            reasoning_tokens = 0
-            if usage and isinstance(usage, dict):
-                details = usage.get("completion_tokens_details", {})
-                if isinstance(details, dict):
-                    reasoning_tokens = details.get("reasoning_tokens", 0)
-            
-            if content_len == 0 and reasoning_tokens > 0:
+            try:
+                effort_label = f"effort={effort}" if effort else "no_effort"
+                log_debug(f"API call attempt {attempt}/{limits.retry_max_attempts} ({effort_label}, web_search={WEB_SEARCH_ENABLED})")
+                
+                resp = client.chat(
+                    model=model_id,
+                    messages=messages,
+                    reasoning=active_reasoning_cfg,
+                    web_search=WEB_SEARCH_ENABLED,
+                    web_search_context_size=WEB_SEARCH_CONTEXT_SIZE,
+                    **model_params
+                )
+                
+                content = resp.get("content") or ""
+                reasoning = resp.get("reasoning")
+                annotations = resp.get("annotations", [])
+                usage = resp.get("usage")
+                
+                # Check for reasoning token starvation
+                content_len = len(content)
+                reasoning_tokens = 0
+                if usage and isinstance(usage, dict):
+                    details = usage.get("completion_tokens_details", {})
+                    if isinstance(details, dict):
+                        reasoning_tokens = details.get("reasoning_tokens", 0)
+                
+                if content_len == 0 and reasoning_tokens > 0:
+                    # Empty content with reasoning = starvation
+                    error = "empty_content_reasoning_starvation"
+                    
+                    # If we have another effort level to try, break inner loop to try it
+                    if effort == "high" and "medium" in effort_sequence:
+                        log_warn(f"Reasoning starvation at effort=high ({reasoning_tokens} tokens), falling back to medium")
+                        fallback_triggered = True
+                        break  # Break inner retry loop, continue to next effort
+                    
+                    # Otherwise retry with same effort
+                    if attempt < limits.retry_max_attempts:
+                        delay = min(
+                            limits.retry_max_delay,
+                            limits.retry_base_delay * (2 ** (attempt - 1))
+                        ) + random.uniform(0, 1)
+                        log_warn(f"Empty content but {reasoning_tokens} reasoning tokens, retry in {delay:.1f}s")
+                        time.sleep(delay)
+                        continue
+                
+                # Success - got content
+                if content_len > 0:
+                    elapsed = time.time() - start_time
+                    effort_meta = {
+                        "effort_requested": original_effort,
+                        "effort_used": effort,
+                        "fallback_triggered": fallback_triggered,
+                    }
+                    return content, reasoning, annotations, usage, None, total_attempts, elapsed, effort_meta
+                
+            except Exception as e:
+                error = str(e)
+                
                 if attempt < limits.retry_max_attempts:
-                    error = "empty_content_with_reasoning_tokens"
                     delay = min(
                         limits.retry_max_delay,
                         limits.retry_base_delay * (2 ** (attempt - 1))
-                    ) + random.uniform(0, 1)
-                    log_warn(f"Empty content but {reasoning_tokens} reasoning tokens, retry in {delay:.1f}s")
+                    ) + random.uniform(0, 0.5)
+                    log_warn(f"API error: {error[:100]}... Retry in {delay:.1f}s")
                     time.sleep(delay)
-                    continue
-            
-            elapsed = time.time() - start_time
-            return content, reasoning, annotations, usage, None, attempt, elapsed
-            
-        except Exception as e:
-            error = str(e)
-            
-            if attempt < limits.retry_max_attempts:
-                delay = min(
-                    limits.retry_max_delay,
-                    limits.retry_base_delay * (2 ** (attempt - 1))
-                ) + random.uniform(0, 0.5)
-                log_warn(f"API error: {error[:100]}... Retry in {delay:.1f}s")
-                time.sleep(delay)
-            else:
-                log_error(f"API failed after {attempt} attempts: {error[:200]}")
+                else:
+                    log_error(f"API failed after {attempt} attempts: {error[:200]}")
+        
+        # If we broke out of inner loop due to fallback, continue to next effort
+        if fallback_triggered and effort == "high":
+            continue
     
+    # All attempts exhausted
     elapsed = time.time() - start_time
-    return content, reasoning, annotations, usage, error, limits.retry_max_attempts, elapsed
-
-
+    effort_meta = {
+        "effort_requested": original_effort,
+        "effort_used": current_effort,  # Last tried
+        "fallback_triggered": fallback_triggered,
+    }
+    return content, reasoning, annotations, usage, error, total_attempts, elapsed, effort_meta
 # =============================================================================
 # JOB EXECUTION
 # =============================================================================
@@ -845,7 +899,7 @@ def execute_forecast_job(
         messages.append({"role": "system", "content": sys_text})
     messages.append({"role": "user", "content": user_text})
     
-    content, reasoning, annotations, usage, error, attempts, elapsed = call_api_with_retry(
+    content, reasoning, annotations, usage, error, attempts, elapsed,effort_meta = call_api_with_retry(
         client=client,
         model_id=model_id,
         messages=messages,
@@ -917,6 +971,7 @@ def execute_forecast_job(
             "usage": usage,
             "error": error,
             "attempts": attempts,
+            "effort_meta": effort_meta,
         },
         "parsed": parse_result.to_dict(),
         "status": status,

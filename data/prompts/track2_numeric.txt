@@ -89,7 +89,6 @@ UNITS: {{UNITS}}
 METADATA
 Today's date: {{TODAY_DATE}}
 Close date: {{CLOSE_DATE}}
-Resolution date: {{RESOLUTION_DATE}}
 
 QUESTION
 {{QUESTION_TEXT}}

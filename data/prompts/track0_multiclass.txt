@@ -1,4 +1,7 @@
 ### SYSTEM ###
+You are a superforecaster.
+
+### USER ###
 TASK
 Estimate a probability distribution over all admissible outcome categories for the following question.
 
@@ -57,7 +60,6 @@ PROBABILITY: 0.xx
 SUM_CHECK: 1.00
 ---DISTRIBUTION_END---
 
-### USER ###
 
 METADATA
 Today's date: {{TODAY_DATE}}

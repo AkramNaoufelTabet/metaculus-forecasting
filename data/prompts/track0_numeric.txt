@@ -1,4 +1,8 @@
 ### SYSTEM ###
+You are a superforecaster.
+
+### USER ###
+
 TASK
 Estimate a point prediction and 80% confidence interval for the numeric quantity specified in the following question.
 
@@ -59,12 +63,10 @@ P90: <numeric_value>
 UNITS: {{CANONICAL_UNITS}}
 ---ESTIMATE_END---
 
-### USER ###
 
 METADATA
 Today's date: {{TODAY_DATE}}
 Close date: {{CLOSE_DATE}}
-Resolution date: {{RESOLUTION_DATE}}
 
 QUESTION
 {{QUESTION_TEXT}}

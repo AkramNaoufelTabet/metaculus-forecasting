@@ -79,13 +79,11 @@ Adjustments from base rate (show arithmetic):
 Uncertainty & calibration check:
 Confidence interval (80%): [L, U]
 
-Final probability: p = [YOUR PROBABILITY AS DECIMAL]
-
+Final probability: p = 0.xx
 ---
 METADATA
 Today's date: {{TODAY_DATE}}
 Close date: {{CLOSE_DATE}}
-Resolution date: {{RESOLUTION_DATE}}
 
 QUESTION
 {{QUESTION_TEXT}}

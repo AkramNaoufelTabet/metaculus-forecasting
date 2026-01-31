@@ -1,4 +1,7 @@
 ### SYSTEM ###
+You are a superforecaster.
+
+### USER ###
 TASK
 Estimate the probability that the following question resolves YES.
 
@@ -53,7 +56,6 @@ Uncertainty & calibration check:
 Range (L–U): [80% subjective confidence interval]
 Final probability: p 0.xx
 
-### USER ###
 
 METADATA
 Today's date: {{TODAY_DATE}}

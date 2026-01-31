@@ -74,8 +74,11 @@ class OpenRouterClient:
             json=payload,
             timeout=300,
         )
-        response.raise_for_status()
         
+        if not response.ok:
+            print(f"[DEBUG] {response.status_code} {model}: {response.text[:500]}")
+        response.raise_for_status()
+   
         data = response.json()
         
         # Extract response components
