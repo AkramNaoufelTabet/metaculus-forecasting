@@ -1,0 +1,122 @@
+### SYSTEM ###
+You are an evidence curator for superforecasters.
+
+### USER ###
+TASK
+Compile a balanced, auditable evidence packet for the following MULTIPLE CHOICE forecasting question.
+
+Your job is to CURATE EVIDENCE, not to forecast. You must NOT output any probability distribution.
+
+CURATOR RULES (MUST FOLLOW)
+- Do NOT output any probabilities or distributions.
+- Do NOT state which option you personally expect to win.
+- Do NOT embed a forecast in your language (e.g., "likely", "probably", "frontrunner").
+- Your output must be neutral, structured, and evidence-only.
+- Use ONLY the raw search results provided below.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING for determining relevance.
+
+EVIDENCE STRUCTURE FOR MULTICLASS
+Organize evidence BY OPTION:
+- For each viable option: Supporting evidence (FOR) and Challenging evidence (AGAINST)
+- NEUTRAL: Background context on the selection process/mechanism
+
+CREDIBILITY TIERS
+- TIER-1: Official sources, government data, peer-reviewed research, major verified outlets (Reuters, AP, BBC, NYT, WSJ)
+- TIER-2: Expert commentary, reputable analysis, established secondary outlets, think tanks
+- TIER-3: Social media, unverified reports, opinion pieces, anonymous sources
+
+CLUSTERING
+- Group items from the same underlying event, announcement, or source.
+- Assign cluster IDs: C1, C2, C3... Standalone items: "—"
+
+REQUIRED CURATION STEPS (FOLLOW IN ORDER)
+1) Understand the question: List all admissible options exactly. Identify how resolution determines the winner.
+2) Identify leading options: Based on evidence, state "Leading options: [A, B] because [1 sentence]". Descriptive only.
+3) For each option with evidence:
+   - Curate FOR evidence (supporting this option winning)
+   - Curate AGAINST evidence (obstacles to this option)
+   - Assess evidence strength: Strong / Moderate / Weak / Minimal
+4) Curate NEUTRAL: 2-4 background items on process/timeline.
+5) Base rate evidence: Historical frequency if available.
+6) Key unknowns: 2-4 missing pieces affecting outcome.
+7) Assign tiers and clusters to all items.
+
+QUALITY CHECKLIST
+□ All viable options addressed
+□ Each option has FOR and AGAINST evidence where available
+□ Evidence strength assessed per option
+□ 2-4 NEUTRAL items
+□ Base rate addressed
+□ 2-4 KEY UNKNOWNS
+□ All summaries ≤50 words
+□ NO probability stated anywhere
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+
+---EVIDENCE_PACKET_START---
+
+## PACKET METADATA
+- Question ID: {{question_id}}
+- Snapshot date: {{today_date}}
+- Close date: {{close_date}}
+- Leading options: [Option A, Option B] — [reason]
+- Total evidence items: X
+
+## OPTIONS LIST
+{{options}}
+
+## OPTION: [Option Name 1]
+Evidence strength: [Strong / Moderate / Weak / Minimal]
+
+### FOR (supporting this option)
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+### AGAINST (challenging this option)
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## OPTION: [Option Name 2]
+[Repeat structure for each viable option]
+
+## NEUTRAL CONTEXT
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## BASE RATE EVIDENCE
+| ID | Tier | Date | Source | Summary |
+|----|------|------|--------|---------|
+[Or: "No base-rate evidence found."]
+
+## KEY UNKNOWNS
+| ID | Unknown | Impact on options |
+|----|---------|-------------------|
+
+## SOURCES
+[List all sources cited with URLs]
+
+---EVIDENCE_PACKET_END---
+
+
+METADATA
+Today's date: {{today_date}}
+Close date: {{close_date}}
+Question ID: {{question_id}}
+
+QUESTION
+{{question}}
+
+BACKGROUND
+{{background}}
+
+ADMISSIBLE OPTIONS
+{{options}}
+
+RESOLUTION CRITERIA
+{{resolution_criteria}}
+
+FINE PRINT
+{{fine_print}}
+
+RAW SEARCH RESULTS
+{{raw_search_results}}

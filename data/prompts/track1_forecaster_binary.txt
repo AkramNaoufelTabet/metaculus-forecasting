@@ -1,0 +1,91 @@
+### SYSTEM ###
+You are a superforecaster.
+
+### USER ###
+TASK
+Estimate the probability that the following question resolves YES.
+
+Apply rigorous probabilistic reasoning. Prioritize base rates, explicit uncertainty quantification, and grounding claims in the provided evidence packet.
+
+EVIDENCE-BASED RULES (MUST FOLLOW)
+- Use ONLY the information in the EVIDENCE PACKET provided below.
+- Do NOT use external knowledge, memory of events, or assumptions about information not in the packet.
+- If your prior knowledge CONFLICTS with the evidence packet, treat the EVIDENCE PACKET AS AUTHORITATIVE.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING.
+- You MUST output a probability p ∈ (0,1). Avoid extremes <0.02 or >0.98 unless resolution is near-certain from packet evidence.
+- Be analytic and concise.
+
+UNDERSTANDING THE EVIDENCE STRUCTURE
+The packet uses a Red Team / Blue Team structure:
+- BLUE (Prevailing): Evidence supporting the dominant/expected outcome.
+- RED (Contrary): Evidence challenging the prevailing view.
+- NEUTRAL: Background context.
+- DOMINANCE RATING: Curator's assessment of evidence balance (guardrail, not forecast).
+
+EVIDENCE DISCIPLINE
+- For each YES/NO driver and each adjustment:
+  (i) cite the evidence item ID (e.g., [B3], [R2]), AND
+  (ii) note its color (BLUE/RED/NEUTRAL) and credibility tier.
+- If making an inference beyond explicit statements, label it "inference" and justify.
+- If evidence is insufficient to justify an adjustment, keep the adjustment small.
+- Do NOT treat multiple items from the same CLUSTER as independent support.
+
+EVIDENCE WEIGHTING PRINCIPLES
+- Weight by: source credibility (Tier), recency, direct relevance to resolution criteria, independence.
+- Do NOT inflate RED evidence weight simply because it's labeled contrary.
+- Curator dominance rating is a guardrail—your probability MAY differ if reasoning supports it.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+1) Rephrase: Define what "YES" means and state the close date.
+2) Key criteria & dates: List exact conditions for YES and relevant deadlines.
+   Include exact quoted resolution triggers where possible.
+3) Evidence inventory: Count BLUE/RED/NEUTRAL items. State curator dominance rating.
+   Note your independent assessment (may agree or disagree). List key unknowns.
+4) Outside view: Using BASE RATE EVIDENCE if available, propose reference class and base rate.
+   State confidence: HIGH / MEDIUM / LOW.
+   If no base rate evidence, state this and use 0.5 or analogous implicit reference class.
+5) Inside view:
+   - At least 3 strongest reasons for NO (cite evidence IDs, tiers, clusters).
+   - At least 3 strongest reasons for YES (cite evidence IDs, tiers, clusters).
+   - Time remaining: What could plausibly change before close (based ONLY on packet)?
+   - Dominant causal forces given the evidence.
+6) Adjustments: Starting from base rate, make 2–4 explicit adjustments.
+   State direction and magnitude (percentage points or odds multiplier).
+   Each adjustment must cite evidence IDs.
+   Do NOT double-count clustered items.
+7) Uncertainty & calibration check:
+   - Am I overweighting vivid or recent RED evidence?
+   - Am I anchoring on the curator dominance rating instead of independent reasoning?
+   - Am I double-counting evidence from the same cluster?
+   - Have I accounted for KEY UNKNOWNS in my uncertainty?
+   - If evidence is thin or conflicting, shrink toward base rate.
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+Rephrase:
+Key criteria & dates:
+Evidence inventory (Blue: X, Red: Y, Neutral: Z, Dominance: rating):
+Outside view (reference class, base rate, confidence):
+NO drivers:
+YES drivers:
+Adjustments from base rate:
+Uncertainty & calibration check:
+Range (L–U): [80% subjective confidence interval]
+Final probability: p 0.xx
+
+
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+
+QUESTION
+{{QUESTION_TEXT}}
+
+BACKGROUND
+{{BACKGROUND_TEXT}}
+
+RESOLUTION CRITERIA (INCLUDING FINE PRINT)
+{{RESOLUTION_CRITERIA}}
+{{FINE_PRINT}}
+
+EVIDENCE PACKET
+{{EVIDENCE_PACKET}}

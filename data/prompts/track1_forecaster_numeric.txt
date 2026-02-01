@@ -1,0 +1,107 @@
+### SYSTEM ###
+You are a superforecaster.
+
+### USER ###
+TASK
+Estimate a point prediction and 80% confidence interval for the numeric quantity specified in the following question.
+
+Apply rigorous probabilistic reasoning. Prioritize base rates, explicit uncertainty quantification, and grounding claims in the provided evidence packet.
+
+EVIDENCE-BASED RULES (MUST FOLLOW)
+- Use ONLY the information in the EVIDENCE PACKET provided below.
+- Do NOT use external knowledge, memory of events, or assumptions about information not in the packet.
+- If your prior knowledge CONFLICTS with the evidence packet, treat the EVIDENCE PACKET AS AUTHORITATIVE.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING.
+- You MUST output: a point estimate (median), a 10th percentile (P10), and a 90th percentile (P90).
+- The interval [P10, P90] must contain 80% of your subjective probability mass.
+- Ensure P10 < median < P90.
+- Respect any bounds specified in the resolution criteria.
+- Express all values in the CANONICAL UNITS specified below.
+- Be analytic and concise.
+
+UNDERSTANDING THE EVIDENCE STRUCTURE
+The packet organizes evidence by direction:
+- HIGH: Evidence supporting higher values.
+- LOW: Evidence supporting lower values.
+- NEUTRAL: Methodology, definitions, measurement context.
+- ESTIMATES: Explicit numeric estimates from sources (critical anchor points).
+- HISTORICAL DATA: Past values of this metric.
+
+EVIDENCE DISCIPLINE
+- For each directional driver and each adjustment:
+  (i) cite the evidence item ID (e.g., [H2], [L3]), AND
+  (ii) note its credibility tier.
+- If making an inference beyond explicit statements, label it "inference" and justify.
+- If evidence is insufficient to justify an adjustment, acknowledge and widen uncertainty.
+
+EVIDENCE WEIGHTING PRINCIPLES
+- Weight ESTIMATES heavily by source credibility (official > expert > other).
+- Anchor on TIER-1 estimates if available.
+- Use HISTORICAL DATA to calibrate interval width.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+1) Rephrase: Define the exact quantity to estimate, its units, and state the resolution/close date.
+2) Key criteria & dates: List exact measurement specifications and relevant deadlines.
+   Include exact quoted resolution triggers where possible. Note any bounds (floor/ceiling).
+3) Evidence inventory: List all ESTIMATES from packet with sources and tiers.
+   Count HIGH/LOW/NEUTRAL items. Note historical data range if available.
+4) Outside view: Using HISTORICAL DATA and BASE RATE evidence, propose base estimate and typical range.
+   State distribution shape assumption if relevant (normal, log-normal, etc.).
+   State confidence: HIGH / MEDIUM / LOW.
+5) Inside view:
+   - At least 3 strongest reasons for HIGHER values (cite evidence IDs, tiers).
+   - At least 3 strongest reasons for LOWER values (cite evidence IDs, tiers).
+   - Time remaining: What could plausibly change before resolution?
+   - Dominant causal forces given the evidence.
+6) Adjustments: Starting from base estimate, make 2–4 explicit adjustments.
+   State direction and magnitude in the same units as the outcome.
+   Each adjustment must cite evidence IDs.
+   Separately note any adjustments to interval width (uncertainty).
+7) Uncertainty & calibration check:
+   - Am I overweighting vivid details or recent events?
+   - Am I anchoring too heavily on a single estimate?
+   - Am I underweighting historical variance?
+   - Is my 80% interval wide enough? (Forecasters are typically overconfident.)
+   - If evidence is thin or conflicting, widen the interval.
+
+CANONICAL UNITS: {{CANONICAL_UNITS}}
+Express ALL numeric outputs (P10, MEDIAN, P90) in these units.
+
+OUTPUT FORMAT (FOLLOW EXACTLY — MACHINE PARSEABLE)
+Rephrase:
+Key criteria & dates:
+Evidence inventory (Estimates: list, HIGH: X, LOW: Y, NEUTRAL: Z):
+Outside view (reference class, base estimate, confidence):
+HIGHER drivers:
+LOWER drivers:
+Adjustments from base rate:
+Uncertainty & calibration check:
+
+---ESTIMATE_START---
+P10: <numeric_value>
+MEDIAN: <numeric_value>
+P90: <numeric_value>
+UNITS: {{CANONICAL_UNITS}}
+---ESTIMATE_END---
+
+
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+
+QUESTION
+{{QUESTION_TEXT}}
+
+BACKGROUND
+{{BACKGROUND_TEXT}}
+
+OUTCOME VARIABLE
+Units: {{UNITS}}
+Bounds (if any): [{{LOWER_BOUND}}, {{UPPER_BOUND}}]
+
+RESOLUTION CRITERIA (INCLUDING FINE PRINT)
+{{RESOLUTION_CRITERIA}}
+{{FINE_PRINT}}
+
+EVIDENCE PACKET
+{{EVIDENCE_PACKET}}

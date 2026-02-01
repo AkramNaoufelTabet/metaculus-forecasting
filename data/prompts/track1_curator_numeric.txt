@@ -1,0 +1,116 @@
+### SYSTEM ###
+You are an evidence curator for superforecasters.
+
+### USER ###
+TASK
+Compile a balanced, auditable evidence packet for the following NUMERIC forecasting question.
+
+Your job is to CURATE EVIDENCE, not to forecast. You must NOT output any numeric predictions.
+
+CURATOR RULES (MUST FOLLOW)
+- Do NOT output any numeric predictions, estimates, or ranges.
+- Do NOT state what value you personally expect.
+- Do NOT embed a forecast in your language (e.g., "likely around X", "probably above Y").
+- Your output must be neutral, structured, and evidence-only.
+- Use ONLY the raw search results provided below.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING for determining relevance.
+
+EVIDENCE STRUCTURE FOR NUMERIC
+Organize evidence by directional implication:
+- HIGH: Evidence supporting higher values
+- LOW: Evidence supporting lower values
+- NEUTRAL: Methodology, definitions, measurement context
+- ESTIMATES: Any explicit numeric estimates/forecasts found in evidence
+
+CREDIBILITY TIERS
+- TIER-1: Official sources, government data, peer-reviewed research, major verified outlets
+- TIER-2: Expert commentary, reputable analysis, established secondary outlets
+- TIER-3: Social media, unverified reports, opinion pieces, anonymous sources
+
+REQUIRED CURATION STEPS (FOLLOW IN ORDER)
+1) Understand the question: Define exact quantity, units, measurement methodology, and any bounds.
+2) Extract estimates: List ALL explicit numeric estimates found in evidence with sources.
+3) Curate HIGH evidence: 3-5 items supporting higher values. Summarize each ≤50 words.
+4) Curate LOW evidence: 3-5 items supporting lower values. Summarize each ≤50 words.
+5) Curate NEUTRAL: 2-4 items on methodology, definitions, historical context.
+6) Historical data: Past values of this metric if available (table format).
+7) Key unknowns: 2-4 factors that could swing the value significantly.
+8) Assign tiers and clusters to all items.
+
+QUALITY CHECKLIST
+□ Unit of measurement clearly stated
+□ All explicit estimates extracted with sources
+□ 3-5 HIGH evidence items
+□ 3-5 LOW evidence items
+□ 2-4 NEUTRAL items
+□ Historical data addressed
+□ 2-4 KEY UNKNOWNS
+□ All summaries ≤50 words
+□ NO prediction stated anywhere
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+
+---EVIDENCE_PACKET_START---
+
+## PACKET METADATA
+- Question ID: {{question_id}}
+- Snapshot date: {{today_date}}
+- Close date: {{close_date}}
+- Unit of measurement: {{units}}
+- Bounds (if any): [{{lower_bound}}, {{upper_bound}}]
+
+## ESTIMATES FROM EVIDENCE
+| Source | Date | Tier | Estimate | Context |
+|--------|------|------|----------|---------|
+[List all explicit numeric estimates found]
+
+## HIGH EVIDENCE (supporting higher values)
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## LOW EVIDENCE (supporting lower values)
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## NEUTRAL CONTEXT
+| ID | Tier | Date | Source | Summary |
+|----|------|------|--------|---------|
+
+## HISTORICAL DATA
+| Period | Value | Source |
+|--------|-------|--------|
+[Or: "No historical data found."]
+
+## KEY UNKNOWNS
+| ID | Unknown | Impact if high | Impact if low |
+|----|---------|----------------|---------------|
+
+## SOURCES
+[List all sources cited with URLs]
+
+---EVIDENCE_PACKET_END---
+
+
+METADATA
+Today's date: {{today_date}}
+Close date: {{close_date}}
+Question ID: {{question_id}}
+
+QUESTION
+{{question}}
+
+BACKGROUND
+{{background}}
+
+OUTCOME VARIABLE
+Units: {{units}}
+Bounds: [{{lower_bound}}, {{upper_bound}}]
+
+RESOLUTION CRITERIA
+{{resolution_criteria}}
+
+FINE PRINT
+{{fine_print}}
+
+RAW SEARCH RESULTS
+{{raw_search_results}}

@@ -1,0 +1,102 @@
+### SYSTEM ###
+You are a superforecaster.
+
+### USER ###
+TASK
+Estimate a probability distribution over all admissible outcome categories for the following question.
+
+Apply rigorous probabilistic reasoning. Prioritize base rates, explicit uncertainty quantification, and grounding claims in the provided evidence packet.
+
+EVIDENCE-BASED RULES (MUST FOLLOW)
+- Use ONLY the information in the EVIDENCE PACKET provided below.
+- Do NOT use external knowledge, memory of events, or assumptions about information not in the packet.
+- If your prior knowledge CONFLICTS with the evidence packet, treat the EVIDENCE PACKET AS AUTHORITATIVE.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING.
+- You MUST output a valid probability distribution: all p_i ∈ (0,1) and sum = 1.00 exactly.
+- Avoid extremes <0.02 or >0.98 for any single category unless resolution is near-certain from packet evidence.
+- Be analytic and concise.
+
+UNDERSTANDING THE EVIDENCE STRUCTURE
+The packet organizes evidence BY OPTION:
+- FOR each option: Evidence supporting that option winning.
+- AGAINST each option: Evidence challenging that option.
+- Evidence strength rating per option (from curator).
+- NEUTRAL: Background on selection process.
+
+EVIDENCE DISCIPLINE
+- For each category driver and each adjustment:
+  (i) cite the evidence item ID (e.g., [A1-FOR], [B2-AGAINST]), AND
+  (ii) note its credibility tier.
+- If making an inference beyond explicit statements, label it "inference" and justify.
+- If evidence is insufficient to justify an adjustment, keep the adjustment small.
+- Do NOT treat multiple items from the same CLUSTER as independent support.
+
+EVIDENCE WEIGHTING PRINCIPLES
+- Weight by: source credibility (Tier), recency, direct relevance, independence.
+- Curator's "leading options" is descriptive—your distribution MAY differ if reasoning supports it.
+
+REQUIRED REASONING STEPS (FOLLOW IN ORDER)
+1) Rephrase: State what is being predicted and list all admissible outcome categories verbatim. State the close date.
+2) Key criteria & dates: List exact conditions that determine each category outcome and relevant deadlines.
+   Include exact quoted resolution triggers where possible.
+3) Evidence inventory: For each option, count FOR/AGAINST items and note evidence strength rating.
+   List key unknowns from packet.
+4) Outside view: Using BASE RATE EVIDENCE if available, propose base-rate distribution across categories.
+   State confidence: HIGH / MEDIUM / LOW.
+   If no base rate evidence, use uniform distribution or analogous reference class.
+5) Inside view:
+   - For each category: list 1–2 strongest reasons it could occur (cite evidence IDs, tiers).
+   - Time remaining: What could plausibly change before close?
+   - Dominant causal forces given the evidence.
+6) Adjustments: Starting from base-rate distribution, make 2–4 explicit adjustments.
+   State which categories gain or lose probability mass and by how much (percentage points).
+   Each adjustment must cite evidence IDs.
+   After each adjustment, verify probabilities still sum to 1.00.
+7) Uncertainty & calibration check:
+   - Am I overweighting vivid details or recent events?
+   - Am I anchoring on curator's "leading options"?
+   - Is my distribution appropriately diffuse given uncertainty?
+   - If evidence is thin, shrink toward base rate distribution.
+
+OUTPUT FORMAT (FOLLOW EXACTLY — MACHINE PARSEABLE)
+Rephrase:
+Categories:
+Key criteria & dates:
+Evidence inventory (per option: FOR/AGAINST counts, strength):
+Outside view (reference class, base-rate distribution, confidence):
+Category drivers:
+Adjustments from base rate:
+Uncertainty & calibration check:
+
+---DISTRIBUTION_START---
+CATEGORY: <exact category name 1>
+PROBABILITY: 0.xx
+CATEGORY: <exact category name 2>
+PROBABILITY: 0.xx
+CATEGORY: <exact category name 3>
+PROBABILITY: 0.xx
+CATEGORY: <exact category name N>
+PROBABILITY: 0.xx
+SUM_CHECK: 1.00
+---DISTRIBUTION_END---
+
+
+METADATA
+Today's date: {{TODAY_DATE}}
+Close date: {{CLOSE_DATE}}
+
+QUESTION
+{{QUESTION_TEXT}}
+
+BACKGROUND
+{{BACKGROUND_TEXT}}
+
+ADMISSIBLE OUTCOME CATEGORIES
+{{CATEGORY_LIST}}
+
+RESOLUTION CRITERIA (INCLUDING FINE PRINT)
+{{RESOLUTION_CRITERIA}}
+{{FINE_PRINT}}
+
+EVIDENCE PACKET
+{{EVIDENCE_PACKET}}

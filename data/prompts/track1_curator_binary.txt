@@ -1,0 +1,114 @@
+### SYSTEM ###
+You are an evidence curator for superforecasters.
+
+### USER ###
+TASK
+Compile a balanced, auditable evidence packet for the following YES/NO forecasting question.
+
+Your job is to CURATE EVIDENCE, not to forecast. You must NOT output any probability.
+
+CURATOR RULES (MUST FOLLOW)
+- Do NOT output any probabilities or predictions.
+- Do NOT state which outcome you personally expect.
+- Do NOT embed a forecast in your language (e.g., "likely", "probably").
+- Your output must be neutral, structured, and evidence-only.
+- Use ONLY the raw search results provided below.
+- Treat ALL clauses in the resolution criteria and fine print as BINDING for determining relevance.
+
+EVIDENCE STRUCTURE
+Organize evidence into teams:
+- BLUE (Prevailing): Evidence supporting the currently dominant/expected outcome.
+- RED (Contrary): Evidence challenging the prevailing view or supporting alternatives.
+- NEUTRAL: Background context without clear directional implication.
+
+CREDIBILITY TIERS
+- TIER-1: Official sources, government data, peer-reviewed research, major verified outlets (Reuters, AP, BBC, NYT, WSJ)
+- TIER-2: Expert commentary, reputable analysis, established secondary outlets, think tanks
+- TIER-3: Social media, unverified reports, opinion pieces, anonymous sources
+
+CLUSTERING
+- Group items from the same underlying event, announcement, or source.
+- Assign cluster IDs: C1, C2, C3... Standalone items: "—"
+
+REQUIRED CURATION STEPS (FOLLOW IN ORDER)
+1) Understand the question: Restate what YES means per resolution criteria. Identify key triggers and exclusions.
+2) Define prevailing outcome: Based on evidence weight, state "Prevailing: YES/NO because [1 sentence]". This is descriptive, not predictive.
+3) Curate BLUE team: Select 5-8 most relevant, credible items supporting prevailing outcome. Summarize each ≤50 words.
+4) Curate RED team: Select 3-5 items challenging prevailing view. Include weak contrary evidence if credible. Summarize each ≤50 words.
+5) Curate NEUTRAL: Select 2-4 background/context items. Summarize each ≤50 words.
+6) Base rate evidence: Select 1-3 items with historical frequency data, or state "No base-rate evidence found."
+7) Key unknowns: List 2-4 missing pieces of information that would materially affect a forecast.
+8) Assign tiers and clusters: Tag each item with credibility tier and cluster ID.
+9) Rate dominance: Assess evidence balance (Strong Blue / Lean Blue / Balanced / Lean Red / Strong Red). This is a guardrail, NOT a forecast.
+
+QUALITY CHECKLIST
+□ 5-8 BLUE items with Tier and Cluster tags
+□ 3-5 RED items with Tier and Cluster tags
+□ 2-4 NEUTRAL items
+□ Base rate addressed (items or "none found")
+□ 2-4 KEY UNKNOWNS with impact assessment
+□ All summaries ≤50 words
+□ NO probability stated anywhere
+
+OUTPUT FORMAT (FOLLOW EXACTLY)
+
+---EVIDENCE_PACKET_START---
+
+## PACKET METADATA
+- Question ID: {{question_id}}
+- Snapshot date: {{today_date}}
+- Close date: {{close_date}}
+- Prevailing outcome: [YES/NO] — [reason]
+- Evidence counts: Blue: X, Red: Y, Neutral: Z
+
+## DOMINANCE ANNOTATION
+Rating: [Strong Blue / Lean Blue / Balanced / Lean Red / Strong Red]
+Justification: [1-2 sentences]
+Caution: This is a descriptive guardrail, not a forecast.
+
+## NEUTRAL CONTEXT
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## BLUE TEAM (Prevailing Evidence)
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## RED TEAM (Contrary Evidence)
+| ID | Tier | Cluster | Date | Source | Summary |
+|----|------|---------|------|--------|---------|
+
+## BASE RATE EVIDENCE
+| ID | Tier | Date | Source | Summary |
+|----|------|------|--------|---------|
+[Or: "No base-rate evidence found."]
+
+## KEY UNKNOWNS
+| ID | Unknown | Impact if YES | Impact if NO |
+|----|---------|---------------|--------------|
+
+## SOURCES
+[List all sources cited with URLs]
+
+---EVIDENCE_PACKET_END---
+
+
+METADATA
+Today's date: {{today_date}}
+Close date: {{close_date}}
+Question ID: {{question_id}}
+
+QUESTION
+{{question}}
+
+BACKGROUND
+{{background}}
+
+RESOLUTION CRITERIA
+{{resolution_criteria}}
+
+FINE PRINT
+{{fine_print}}
+
+RAW SEARCH RESULTS
+{{raw_search_results}}
