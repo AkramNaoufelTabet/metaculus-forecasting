@@ -10,7 +10,7 @@
   "search": {
     "query_model": "anthropic/claude-sonnet-4.5",
     "results_per_query": 8,
-    "max_total_results": 25,
+    "max_total_results": 12,
     "relevance_threshold": 2,
     "enable_retry": true,
     "cache_enabled": true

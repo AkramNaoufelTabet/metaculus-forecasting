@@ -792,8 +792,8 @@ def get_search_pipeline(client: OpenRouterClient, cache_dir: Optional[Path] = No
             exa_client=exa_client,
             cache_dir=cache_dir,
             query_model="anthropic/claude-sonnet-4.5",
-            results_per_query=8,
-            max_total_results=25,
+            results_per_query=4,
+            max_total_results=12,
             relevance_threshold=2,
             enable_retry=True,
         )
