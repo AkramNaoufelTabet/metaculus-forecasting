@@ -1159,7 +1159,7 @@ def main():
         description="Track-2: Forecasting with Native Web Search",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--questions", default="data/questions.csv", help="Questions CSV path")
+    parser.add_argument("--questions", default="data/questions_extracted_v3.csv", help="Questions CSV path")
     parser.add_argument("--models", default="data/models_track2.json", help="Models JSON path")
     parser.add_argument("--prompts", default="data/prompts", help="Prompts directory")
     parser.add_argument("--output", default="run/track2", help="Output base directory")

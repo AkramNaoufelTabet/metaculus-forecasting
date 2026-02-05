@@ -20,7 +20,7 @@ EVIDENCE DISCIPLINE
   (i) any nontrivial factual claim,
   (ii) every claim used as a reason for a category driver,
   (iii) every adjustment step.
-- Citation format: [Source: Outlet or Domain, Date] (URLs optional).
+- Citation format: [Source: Outlet or Domain, Date].
 - Rate each source's credibility:
   TIER-1 = official/primary sources (gov, regulators, court docs, company filings), major verified outlets
   TIER-2 = reputable analysis, credible experts, established secondary outlets

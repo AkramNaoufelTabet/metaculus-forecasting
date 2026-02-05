@@ -1254,7 +1254,7 @@ def main():
         description="Track-0 Closed-Book Forecasting Runner",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--questions", default="data/questions.csv", help="Questions CSV path")
+    parser.add_argument("--questions", default="data/questions_extracted_v3.csv", help="Questions CSV path")
     parser.add_argument("--models", default="data/models.json", help="Models JSON path")
     parser.add_argument("--prompts", default="data/prompts", help="Prompts directory")
     parser.add_argument("--output", default="run/track0", help="Output base directory")

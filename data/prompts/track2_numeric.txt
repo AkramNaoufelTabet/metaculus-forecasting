@@ -19,7 +19,7 @@ EVIDENCE DISCIPLINE
   (i) any nontrivial factual claim,
   (ii) every data point or forecast used,
   (iii) every adjustment step.
-- Citation format: [Source: Outlet or Domain, Date] (URLs optional).
+- Citation format: [Source: Outlet or Domain, Date].
 - Rate each source's credibility:
   TIER-1 = official/primary sources (gov statistics, central banks, company filings), major verified outlets
   TIER-2 = reputable analysis, credible experts, established secondary outlets
